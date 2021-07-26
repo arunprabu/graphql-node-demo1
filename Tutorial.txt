@@ -1,0 +1,170 @@
+Let's have the following in the basic first version of the app. 
+====
+
+Create a node js project. 
+  npm i express graphql express-graphql
+
+in server.js have the following code
+
+// create a file server.js 
+const express = require('express');
+const { graphqlHTTP } = require('express-graphql');
+
+const app = express();
+const PORT = 3001;
+
+app.use('/graphql', graphqlHTTP({
+  schema: '', // Schema is not properly setup for this
+  graphiql: true // graphiql is a client
+}));
+
+// GraphiQL is an in-browser tool for writing, validating, and testing GraphQL queries.
+
+app.listen(PORT, () => {
+  console.log('GraphQL NodeJS App is running on http://localhost:3001/graphql');
+});
+
+// try node server.js and check the app at http://localhost:3001/graphql
+
+//==================================================
+
+// Advanced Tutorial
+===============
+
+Let's create another project 
+===
+  npm i express graphql express-graphql
+
+in server.js have the following code
+
+// create a file server.js 
+const express = require('express');
+const { graphqlHTTP } = require('express-graphql');
+
+const app = express();
+const PORT = 3001;
+
+app.use('/graphql', graphqlHTTP({
+  schema: '', // Let's setup schema for graphql 
+  graphiql: true // graphiql is a client
+}));
+
+// GraphiQL is an in-browser tool for writing, validating, and testing GraphQL queries.
+
+app.listen(PORT, () => {
+  console.log('GraphQL NodeJS App is running on http://localhost:3001/graphql');
+});
+
+// try node server.js and check the app at http://localhost:3001/graphql
+
+Step 1: 
+---
+  const GraphQLSchema  = graphql.GraphQLSchema;
+
+  // Let's have the schema for the app
+  // Schema is a combination of query and mutation
+  const schema = new GraphQLSchema({
+    //it expects query inside
+    query:  .....,    // we have to create RootQuery for the app and associate it here
+    mutation: .....   // we have to add mutation for the app and associate it here
+  });
+
+Step 2:
+----
+    we have to create RootQuery for the app and associate it in the schema 
+
+    const RootQuery = '';
+    //const Mutation = '';
+
+  and associate the above in schema.
+  
+  const schema = new GraphQLSchema({
+    //it expects query inside
+    query:  RootQuery,    // do this now
+    // mutation: Mutation   // do this later 
+  });
+
+Step 3:
+----
+  If we want to create root query we need to learn about datatypes for the root query data. 
+  
+  GraphQL has wide variety of datatypes such as GraphQLObjectType, GraphQLString, GraphQLInt
+  we can import them from 
+    const { GraphQLObjectType, GraphQLString, GraphQLInt } = require('graphql');
+
+Step 4: 
+---
+  Let's properly build the root query. 
+  RootQuery syntax will be like the following. 
+  const RootQuery = new GraphQLObjectType({
+    name: ...,
+    fields: {
+      ..., // getUserList
+      ..., // getUserById
+    }
+  });
+
+Step 5: 
+---
+  RootQuery is for the whole app. Inside it we can have feature wise queries. 
+  It's like index page for all other pages. 
+  So, Let's create a feature wise Query within the app. 
+  Assume we are building user management app. Then, we will deal with users data. 
+  For this we can create Query as UserType with the fields and their associated herewith. 
+
+  const UserType = new GraphQLObjectType({
+    name: 'User',
+    fields: () => ({
+      id: { type: GraphQLInt },
+      name: { type: GraphQLString },
+      email: { type: GraphQLString },
+      phone: { type: GraphQLString },
+    })
+  });
+
+Step 6:
+---
+  In our RootQuery let's associate the above UserType Query 
+  
+  const RootQuery = new GraphQLObjectType({
+    name: 'RootQueryType',
+    fields: {
+      getUserList: { 
+        type: new GraphQLList(UserType),
+        args: { 
+          id: {
+            type: GraphQLInt
+          }
+        },
+        // queries should have resolvers 
+        resolve(parent, args) {
+          // within this we can make db calls 
+          // and return the data
+        }
+      }
+    }
+  });
+
+
+Step 6: 
+----
+  const userData = require('./data.json');
+
+  And in resolve function, do the following
+
+  resolve(parent, args){
+    return userData; // userData is the json object 
+  }
+
+
+
+Step 7:
+====
+  It's over. Query like the following from graphiql web interface 
+ 
+  query{
+    getUserList {
+      id,
+      name
+    }
+  }
