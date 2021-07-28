@@ -1,6 +1,7 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } = require('graphql');
+const axios = require('axios');
 
 const app = express();
 const PORT = 3001;
@@ -21,7 +22,17 @@ const UserType = new GraphQLObjectType({
     name: { type: GraphQLString },
     phone: { type: GraphQLString }
   })
-})
+});
+
+const PostType = new GraphQLObjectType({
+  name: "Post",
+  fields: () => ({
+    userId: { type: GraphQLInt }, 
+    id: { type: GraphQLInt },
+    title: { type: GraphQLString },
+    body: { type: GraphQLString }
+  })
+});
 
 // Let's setup root query 
 // RootQuery represents app wide queries
@@ -94,7 +105,28 @@ const RootQuery = new GraphQLObjectType({
       }
     },
     posts: {
-      
+      type: new GraphQLList(PostType),
+      async resolve() {  // if you use async await -- you need to have async for the function
+        //Let's get data from External REST API
+        // npm i axios
+        console.log("Inside Posts");
+        // return the promise also
+        // return axios.get('https://jsonplaceholder.typicode.com/posts')
+        //   .then( res => {
+        //     return res.data
+        //   })
+        //   .catch( err => {
+        //     console.log(err);
+        //   })
+        //   .finally( () => {
+        //     console.log('It is over');
+        //   });
+
+        // The above will work. Alternatively you can use async await also. Note that resolve() has async 
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        console.log(response.data);
+        return response.data;
+      }
     }
   }
 });
