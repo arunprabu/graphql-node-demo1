@@ -7,7 +7,7 @@ const { graphqlHTTP } = require('express-graphql');
 const userData = require('./data.json');
 console.log(userData);
 
-const app = express();
+let app = express();
 const PORT = 3001;
 
 const UserType = new GraphQLObjectType({
@@ -33,7 +33,28 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parent, args) {
         console.log(userData);
-        return userData
+        return userData;
+      }
+    },
+    getUserById: {
+      type: UserType,
+      description: 'Enter Id to get the individual user object',
+      args: { 
+        id: {
+          type: GraphQLInt
+        }
+      },
+      resolve(parent, args) {
+        if(args.id ){
+          let id = args.id;
+          let userDetails = userData.filter(user => {
+            if(user.id == id){
+              return user;
+            }
+          });
+          console.log(userDetails);
+          return userDetails[0];
+        }
       }
     }
   }

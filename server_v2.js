@@ -1,0 +1,166 @@
+const express = require('express');
+const { graphqlHTTP } = require('express-graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } = require('graphql');
+
+const app = express();
+const PORT = 3001;
+
+const BookType = new GraphQLObjectType({
+  name: "Book",
+  fields: () => ({
+    id: { type: GraphQLInt },
+    name: { type: GraphQLString },
+    genre: { type: GraphQLString }
+  })
+});
+
+const UserType = new GraphQLObjectType({
+  name: "User",
+  fields: () => ({
+    id: { type: GraphQLInt },
+    name: { type: GraphQLString },
+    phone: { type: GraphQLString }
+  })
+})
+
+// Let's setup root query 
+// RootQuery represents app wide queries
+const RootQuery = new GraphQLObjectType({
+  name: 'RootQueryV2',
+  fields: {
+    hello: { // here's a hello field with resolve function
+      type: GraphQLString,
+      resolve(parent, args){
+        return 'Hello World!';
+      }
+    },
+    greet: {
+      type: GraphQLString,
+      args: { name: {type: GraphQLString }},
+      resolve(parent, args) {
+        console.log(parent);
+        console.log(args);
+        return `Good Morning, ${args.name}!`;
+      }
+    },
+    book: {
+      type: BookType,
+      args: { id: {type: GraphQLInt }},
+      resolve(parent, args) {
+        
+        console.log(args); // id will be in it. 
+        // exec db query to fetch data for the id
+        // but now mocking with the sample data here
+        const bookDetails = {
+          id: 1,
+          name: 'How to GraphQL',
+          genre: 'Tech'
+        }
+        
+        return bookDetails;
+      }
+    },
+    userList: {
+      type: new GraphQLList(UserType),
+      //args: { id: { type: GraphQLInt }},
+      resolve(parent, args) {
+        //console.log(args);
+        return [
+          {
+            id: 1,
+            name: "Arun",
+            phone: "1212",
+          },
+          { 
+            id: 2,
+            name: "John",
+            phone: "342342"
+          }
+        ]
+      }
+    },
+    user: {
+      type: UserType,
+      args: { id: { type: GraphQLInt }},
+      resolve(parent, args) {
+        console.log(args);
+        // exec db query to fetch user details for the id
+        // now returning mock data
+        return {
+            id: 1,
+            name: "Arun",
+            phone: "1212",
+          }
+      }
+    }
+  }
+});
+
+
+// Now Let's work on Mutations
+// Http Methods - POST, PUT, PATCH, DELETE can be handled here
+const Mutation = new GraphQLObjectType({
+  name: "MutationsV2",
+  fields: {
+    // Create, Update, Delete operations are the fields
+    createUser: {
+      type: UserType,
+      // What can be args for creating user? the form data.
+      args: {
+        name: { type: GraphQLString },
+        phone: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        console.log(parent, args);
+        //exec query and return the status of create operation
+        return {
+          id: 999, // trying mock id
+          name: args.name,
+          phone: args.phone
+        }
+      }
+    },
+    updateUser: {
+      type: UserType,
+      // What can be args for creating user? the form data.
+      args: {
+        id: { type: GraphQLInt },
+        name: { type: GraphQLString },
+        phone: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        console.log(parent, args);
+        //exec query and return the status of update operation
+        return {
+          id: args.id, // trying mock id
+          name: args.name,
+          phone: args.phone
+        }
+      }
+    }
+    // TODO: delete -- get id only as arg. 
+    // after deleting just send the status. 
+    // return type should be string or obj. It can't be UserType
+  }
+}); 
+
+// Let's have the schema for the app
+// Schema is a combination of query and mutation
+const schema = new GraphQLSchema({
+  //it expects query inside
+  query: RootQuery,       // we have to create RootQuery for the app and associate it here
+  mutation: Mutation
+});
+
+app.use('/graphql', graphqlHTTP({
+  schema: schema, // Schema is not properly setup for this
+  graphiql: true // graphiql is a client
+}));
+
+// GraphiQL is an in-browser tool for writing, validating, and testing GraphQL queries.
+
+app.listen(PORT, () => {
+  console.log('GraphQL NodeJS App is running on http://localhost:3001/graphql');
+});
+
+// try node server_v1.js and check the app at http://localhost:3001/graphql

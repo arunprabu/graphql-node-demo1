@@ -28,8 +28,16 @@ app.listen(PORT, () => {
 
 //==================================================
 
+
 // Advanced Tutorial
 ===============
+
+They are two different ways of implementation. 
+Using buildSchema uses the graphQL schema language while 
+GraphQLSchema does not use the schema language, it creates the schema programmatically.
+Our v1 project uses buildSchema.
+This v2 project will use GraphQLSchema.
+
 
 Let's create another project 
 ===
@@ -74,14 +82,14 @@ Step 2:
     we have to create RootQuery for the app and associate it in the schema 
 
     const RootQuery = '';
-    //const Mutation = '';
+    //const Mutation = ''; // will implement  this later
 
   and associate the above in schema.
   
   const schema = new GraphQLSchema({
     //it expects query inside
     query:  RootQuery,    // do this now
-    // mutation: Mutation   // do this later 
+    // mutation: Mutation   // will implement this later 
   });
 
 Step 3:
@@ -90,14 +98,14 @@ Step 3:
   
   GraphQL has wide variety of datatypes such as GraphQLObjectType, GraphQLString, GraphQLInt
   we can import them from 
-    const { GraphQLObjectType, GraphQLString, GraphQLInt } = require('graphql');
+    const graphql, { GraphQLObjectType, GraphQLString, GraphQLInt } = require('graphql');
 
 Step 4: 
 ---
   Let's properly build the root query. 
   RootQuery syntax will be like the following. 
   const RootQuery = new GraphQLObjectType({
-    name: ...,
+    name: ..., // you can decide on the name -- anything you want. it should be a string 
     fields: {
       ..., // getUserList
       ..., // getUserById
@@ -168,3 +176,11 @@ Step 7:
       name
     }
   }
+
+====
+With Querying is over ... Let's work on mutations. 
+Create User, Update User, Delete User should be implemented
+
+Step 8: 
+------
+  
