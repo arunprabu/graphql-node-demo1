@@ -92,6 +92,9 @@ const RootQuery = new GraphQLObjectType({
             phone: "1212",
           }
       }
+    },
+    posts: {
+      
     }
   }
 });
@@ -149,7 +152,7 @@ const Mutation = new GraphQLObjectType({
 const schema = new GraphQLSchema({
   //it expects query inside
   query: RootQuery,       // we have to create RootQuery for the app and associate it here
-  mutation: Mutation
+  mutation: Mutation // specify mutation here
 });
 
 app.use('/graphql', graphqlHTTP({

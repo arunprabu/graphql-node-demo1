@@ -146,7 +146,7 @@ Step 6:
         },
         // queries should have resolvers 
         resolve(parent, args) {
-          // within this we can make db calls 
+          // within this block we can make db calls 
           // and return the data
         }
       }
@@ -156,6 +156,7 @@ Step 6:
 
 Step 6: 
 ----
+// for mockdata you can follow this approach
   const userData = require('./data.json');
 
   And in resolve function, do the following
@@ -183,4 +184,72 @@ Create User, Update User, Delete User should be implemented
 
 Step 8: 
 ------
+// Now Let's work on Mutations
+// Http Methods - POST, PUT, PATCH, DELETE can be handled here
+const Mutation = new GraphQLObjectType({
+  name: "MutationsV2",
+  fields: {
+    // Create, Update, Delete operations are the fields
+    createUser: {
+      type: UserType,
+      // What can be args for creating user? the form data.
+      args: {
+        name: { type: GraphQLString },
+        phone: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        console.log(parent, args);
+        //exec query and return the status of create operation
+        return {
+          id: 999, // trying mock id
+          name: args.name,
+          phone: args.phone
+        }
+      }
+    }
+  }
+});
+
+Step 9:
+===
+associate the above Mutation with the GraphQLSchema
+const schema = new GraphQLSchema({
+  //it expects query inside
+  query: RootQuery,       // we have to create RootQuery for the app and associate it here
+  mutation: Mutation // specify mutation here
+});
+
+Step 10:
+===
+  check the app. 
+  Try the following mutation graphiql interface 
+
+  mutation{
+    createUser( name: "Steve", phone: "343444") {
+      id
+      name
+      phone
+    }
+  }
   
+
+====
+Using the above step you can work on updateUser, deleteUser also. 
+
+===
+Let's now think about Enterprise App Style folder structure
+--
+
+src/
+  ...
+  ...
+  ...
+  Schemas/
+    TypeDefs/  (for all custom data types such as Book, User )
+      User.js   (to have UserType)
+      Book.js   (to have BookType)
+    Queries/   (all queries can be here)
+      User.js  (User related queries can be here )
+    Mutations/
+      User.js   (user related mutations can be here)
+    index.js   (for RootQuery and Mutations go here)
